@@ -1,10 +1,11 @@
 import datetime
 import hashlib
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
-
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
 def generate_key_pair():
     # Generate a 2048 bit RSA key pair
     key = rsa.generate_private_key(
@@ -15,7 +16,7 @@ def generate_key_pair():
     private_key = key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.BestAvailableEncryption(b'coconut')
     )
     # Serialize the public key to PEM format
     public_key = key.public_key().public_bytes(
@@ -30,14 +31,14 @@ def generate_key_pair():
 
 
 def Signature(message):
-
     # Read the private key from the file
     with open('private_key.pem', 'rb') as f:
         private_pem = f.read()
-        private_key = serialization.load_pem_private_key(
-            private_pem,
-            password=None
-        )
+        private_key = load_pem_private_key(
+        private_pem,
+        password='coconut'.encode(),
+        backend=default_backend()
+    )
 
     # Sign the message with the private key
     signature = private_key.sign(
