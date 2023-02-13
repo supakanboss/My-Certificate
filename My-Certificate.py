@@ -73,9 +73,9 @@ def Valid_Signature( Certificate, Signature, Public_Key, current_date, expiratio
     Certificate_hash = hash_object.digest()
     
     if current_date <= expiration_date :
-        print("Valid_Date")
+        print("The expiration date has been verified. and expiration date :", expiration_date)
     else:
-        print("Expired_Date")
+        print("Expired")
         exit()
     
     try:
@@ -131,7 +131,7 @@ def main():
 
     Signature(message_hash)
 
-    if int(input("enter : ")) == 1 :
+    if input("You want to Validate Signature Enter(ok) : ") =="ok":
         current_date = datetime.datetime.now()
         expiration_date = datetime.datetime.strptime(expiration_date, '%Y-%m-%d')
         Valid_Signature('Certificate.txt', 'Signature.txt', 'public_Key.pem', current_date, expiration_date)
