@@ -98,9 +98,9 @@ def Valid_Signature(Certificate, Signature, Public_Key, current_date, expiration
             ),
             hashes.SHA512()
         ),
-        print("Signature is valid.")
+        print("Certificate นี้ถูกค้อง")
     except:
-        print("Signature is invalid.")
+        print("Certificate นี้ไม่ถูกค้อง")
 
 
 def main():
