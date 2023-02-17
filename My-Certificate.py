@@ -1,3 +1,4 @@
+import os
 import datetime
 import hashlib
 from cryptography.hazmat.primitives import hashes
@@ -6,6 +7,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
+
 def generate_key_pair():
     # Generate a 2048 bit RSA key pair
     key = rsa.generate_private_key(
@@ -26,19 +29,24 @@ def generate_key_pair():
     # Write the private and public key to file
     with open('private_key.pem', 'wb') as f:
         f.write(private_key)
+
+    os.chmod('private_key.pem', 0o700)
+
     with open('public_key.pem', 'wb') as f:
         f.write(public_key)
 
 
 def Signature(message):
+
+    password = input("Enter Password Of Private Key : ")
     # Read the private key from the file
     with open('private_key.pem', 'rb') as f:
         private_pem = f.read()
         private_key = load_pem_private_key(
-        private_pem,
-        password='coconut'.encode(),
-        backend=default_backend()
-    )
+            private_pem,
+            password=password.encode(),
+            backend=default_backend()
+        )
 
     # Sign the message with the private key
     signature = private_key.sign(
@@ -53,31 +61,33 @@ def Signature(message):
     with open('Signature.txt', 'wb') as f:
         f.write(signature)
 
-def Valid_Signature( Certificate, Signature, Public_Key, current_date, expiration_date) :
+
+def Valid_Signature(Certificate, Signature, Public_Key, current_date, expiration_date):
     # Read the public key from the file
-    with open( Public_Key, 'rb') as f:
+    with open(Public_Key, 'rb') as f:
         public_pem = f.read()
         public_key = serialization.load_pem_public_key(public_pem)
-    
+
     # Read the Certificate from the file
-    with open( Certificate, 'r') as f:
+    with open(Certificate, 'r') as f:
         Certificate = f.read()
-   
+
     # Read the Signature from the file
-    with open( Signature, 'rb') as f:
+    with open(Signature, 'rb') as f:
         Signature = f.read()
-    
+
     # Hash the Certificate using SHA-512
     Certificate = Certificate.encode('utf-8')
     hash_object = hashlib.sha512(Certificate)
     Certificate_hash = hash_object.digest()
-    
-    if current_date <= expiration_date :
-        print("The expiration date has been verified. and expiration date :", expiration_date)
+
+    if current_date <= expiration_date:
+        print(
+            "The expiration date has been verified. and expiration date :", expiration_date)
     else:
         print("Expired")
         exit()
-    
+
     try:
         public_key.verify(
             Signature,
@@ -91,6 +101,7 @@ def Valid_Signature( Certificate, Signature, Public_Key, current_date, expiratio
         print("Signature is valid.")
     except:
         print("Signature is invalid.")
+
 
 def main():
     generate_key_pair()
@@ -109,7 +120,7 @@ def main():
 
         expiration_date = input("วันหมดอายุของใบรับรอง (YYYY-MM-DD): ")
         Data.append(expiration_date)
-        
+
         Grade = input("Grade : ")
         Data.append(Grade)
 
@@ -131,11 +142,15 @@ def main():
 
     Signature(message_hash)
 
-    if input("You want to Validate Signature Enter(ok) : ") =="ok":
+    if input("You want to Validate Signature Enter(ok) : ") == "ok":
         current_date = datetime.datetime.now()
-        expiration_date = datetime.datetime.strptime(expiration_date, '%Y-%m-%d')
-        Valid_Signature('Certificate.txt', 'Signature.txt', 'public_Key.pem', current_date, expiration_date)
-    else: exit 
+        expiration_date = datetime.datetime.strptime(
+            expiration_date, '%Y-%m-%d')
+        Valid_Signature('Certificate.txt', 'Signature.txt',
+                        'public_Key.pem', current_date, expiration_date)
+    else:
+        exit
+
 
 if __name__ == "__main__":
     main()
