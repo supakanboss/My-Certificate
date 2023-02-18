@@ -126,9 +126,7 @@ def main():
 
         Public_benefit = input("Public benefit score : ")
         Data.append(Public_benefit)
-
-        if Data != '':
-            break
+        break
 
     # Concatenate the inputs into a single string
     message = ''.join(Data)
